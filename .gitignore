@@ -148,3 +148,6 @@ vite.config.ts.timestamp-*
 
 # upload directory
 uploads/
+/generated/prisma
+
+/src/generated/prisma
