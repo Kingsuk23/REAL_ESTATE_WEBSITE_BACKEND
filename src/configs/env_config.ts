@@ -10,6 +10,7 @@ const env_configs = {
   NODEMAILER_PORT: process.env.NODEMAILER_PORT as string,
   NODEMAILER_USER: process.env.NODEMAILER_USER as string,
   NODEMAILER_PASS: process.env.NODEMAILER_PASS as string,
+  JWT_SECRET: process.env.JWT_SECRET as string,
 };
 
 export default env_configs;

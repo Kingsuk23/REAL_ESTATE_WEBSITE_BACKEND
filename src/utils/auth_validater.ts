@@ -55,3 +55,10 @@ export const auth_resignation_schema = z
       });
     }
   });
+
+export const auth_login_schema = z.object({
+  email: z
+    .string({ message: 'Email is required' })
+    .email({ message: 'Invalid email' }),
+  password: z.string({ message: 'Password is required' }),
+});
