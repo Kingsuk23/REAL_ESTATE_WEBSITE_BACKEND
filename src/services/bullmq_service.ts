@@ -1,7 +1,10 @@
 import { Job, Queue, Worker } from 'bullmq';
 import { redis_config } from '../configs/db_config';
 import { transporter } from '../configs/nodemailer_config';
-import { auth_otp_template } from '../utils/email_template';
+import {
+  auth_otp_template,
+  auth_pass_reset_template,
+} from '../utils/email_template';
 import nodemailer from 'nodemailer';
 
 export const retry_failed_job = {
@@ -19,11 +22,13 @@ export const mail_sender_queue = new Queue('auth_mail_sender', {
 
 const mail_sender_worker = new Worker(
   'auth_mail_sender',
-  async (job: Job<{ email: string; otp: number }>) => {
+  async (
+    job: Job<{ email: string; medium: string | number; email_type: string }>,
+  ) => {
     try {
-      const { email, otp } = job.data;
+      const { email, medium, email_type } = job.data;
 
-      if (!email || !otp) {
+      if (!email || !medium || !email_type) {
         throw new Error('require fields are missing');
       }
 
@@ -33,10 +38,14 @@ const mail_sender_worker = new Worker(
         throw new Error('Email server failed to start');
       }
 
+      const email_template =
+        email_type === 'verification'
+          ? auth_otp_template(medium as number)
+          : auth_pass_reset_template(medium as string);
       const mail_info = await transporter.sendMail({
         from: `"RealHut Team" <carolina.howe43@ethereal.email>`,
         to: email,
-        html: auth_otp_template(otp),
+        html: email_template,
       });
       const get_mail = nodemailer.getTestMessageUrl(mail_info);
       console.log(get_mail);

@@ -16,7 +16,6 @@ export const validate_user_auth = try_catch_handler(
     // collect token from header
     const auth_token = req.header('Authorization')?.replace('Bearer ', '');
 
-    console.log(auth_token);
     // validate token exist or not
     if (!auth_token) {
       return res
@@ -33,7 +32,6 @@ export const validate_user_auth = try_catch_handler(
         .json({ message: 'Token expire' });
     }
 
-    console.log(token);
     // verify if it's correct or false
     const verify = <jwt.UserIDJwtPayload>(
       jwt.verify(auth_token, env_configs.JWT_SECRET)
