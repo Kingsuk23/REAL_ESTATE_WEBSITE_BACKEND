@@ -18,6 +18,7 @@ import {
 import { mail_sender_service } from '../services/mail_sender_service';
 import { verify_otp_service } from '../services/verify_otp_service';
 import { api_error } from '../utils/error_handler';
+import { default_avatar } from '../utils/default_avatar';
 
 export const registration_controller = try_catch_handler(
   async (req: Request, res: Response) => {
@@ -36,7 +37,10 @@ export const registration_controller = try_catch_handler(
     }
 
     // check user already register or not
-    const is_user_register = await prisma.user.findUnique({ where: { email } });
+    const is_user_register = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true },
+    });
 
     if (is_user_register) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -49,6 +53,9 @@ export const registration_controller = try_catch_handler(
 
     const hash_password = bcrypt.hashSync(password, gen_salt);
 
+    // Generate avatar url
+    const avatar_url = default_avatar(email);
+
     // Save user in database
     const new_user = await prisma.user.create({
       data: {
@@ -56,6 +63,7 @@ export const registration_controller = try_catch_handler(
         email,
         password: hash_password,
         role: 'buyer',
+        avatar_url,
         is_email_verified: false,
       },
       select: {
@@ -110,6 +118,7 @@ export const email_verification_controller = try_catch_handler(
     await prisma.user.update({
       where: { id },
       data: { is_email_verified: true },
+      select: { id: true },
     });
 
     res.status(StatusCodes.OK).json({ message: 'User successfully verified' });
@@ -255,7 +264,10 @@ export const logout_user_controller = try_catch_handler(
     const token = req.token;
     const token_expire_date = req.token_expire_date;
 
-    const logout_user = await prisma.user.findUnique({ where: { id } });
+    const logout_user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true },
+    });
 
     if (!logout_user) {
       return res

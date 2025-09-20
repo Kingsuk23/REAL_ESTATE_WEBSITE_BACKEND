@@ -4,6 +4,7 @@ declare namespace Express {
       id: string;
       role: string;
     };
+    rateLimit: { resetTime: number };
     token: string;
     token_expire_date: number;
   }
